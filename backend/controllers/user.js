@@ -72,7 +72,6 @@ export const userLogin = async (req, res) => {
   }
 };
 
-
 // Define function to fetch all books
 export const getBooks = async (req, res) => {
   try {
@@ -82,5 +81,75 @@ export const getBooks = async (req, res) => {
   } catch (error) {
     console.error("Error fetching books:", error);
     return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+export const addExpense = async (req, res) => {
+  try {
+    console.log(req.body);
+    const { heading, date, amount } = req.body;
+    const sql =
+      "INSERT INTO transactions (transactionType, heading, date, amount) VALUES (?, ?, ?, ?)";
+    const values = ["expense", heading, new Date(), amount];
+    await connection.execute(sql, values);
+    res
+      .status(201)
+      .json({ success: true, message: "Expense added successfully" });
+  } catch (error) {
+    console.error("Error adding expenses", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+export const addIncome = async (req, res) => {
+  try {
+    const { heading, date, amount } = req.body;
+    const sql =
+      "INSERT INTO transactions (transactionType, heading, date, amount) VALUES (?, ?, ?, ?)";
+    const values = ["income", heading, new Date(), amount];
+    await connection.execute(sql, values);
+    res
+      .status(201)
+      .json({ success: true, message: "Income added successfully" });
+  } catch (error) {
+    console.error("Error adding income", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+export const getTransactions = async (req, res) => {
+  try {
+    const sql = "SELECT * FROM transactions";
+    const [rows] = await connection.execute(sql);
+    let totalBalance = 0;
+    let expense = 0;
+    let income = 0;
+
+    const transactions = rows.map((row) => {
+      if (row.transactionType === "expense") {
+        expense += Number(row.amount);
+      } else {
+        income += Number(row.amount);
+      }
+
+      return {
+        transactionType: row.transactionType,
+        heading: row.heading,
+        date: row.date,
+        amount: row.amount,
+      };
+    });
+
+    totalBalance = income - expense;
+
+    res.json({
+      totalBalance,
+      expense,
+      income,
+      transactions,
+    });
+  } catch (error) {
+    console.error("Error fetching transactions:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
