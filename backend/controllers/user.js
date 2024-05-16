@@ -43,7 +43,7 @@ export const createUser = async (req, res) => {
 };
 
 export const userLogin = async (req, res) => {
-  console.log(req.body);
+
   try {
     const sql = "SELECT * FROM login WHERE email = ?";
     const values = [req.body.email];
@@ -76,8 +76,9 @@ export const userLogin = async (req, res) => {
 
 export const addExpense = async (req, res) => {
   try {
-    console.log(req.body);
-    const { heading, date, amount } = req.body;
+  
+    const { heading, date } = req.body;
+    const amount = Number(req.body.amount);
     const sql =
       "INSERT INTO transactions (transactionType, heading, date, amount) VALUES (?, ?, ?, ?)";
     const values = ["expense", heading, new Date("2022-03-25"), amount];
@@ -93,7 +94,8 @@ export const addExpense = async (req, res) => {
 
 export const addIncome = async (req, res) => {
   try {
-    const { heading, date, amount } = req.body;
+    const { heading, date } = req.body;
+    const amount = Number(req.body.amount);
     const sql =
       "INSERT INTO transactions (transactionType, heading, date, amount) VALUES (?, ?, ?, ?)";
     const values = ["income", heading, new Date(), amount];
