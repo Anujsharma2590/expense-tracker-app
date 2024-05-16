@@ -72,17 +72,7 @@ export const userLogin = async (req, res) => {
   }
 };
 
-// Define function to fetch all books
-export const getBooks = async (req, res) => {
-  try {
-    const q = "SELECT * FROM books";
-    const [results] = await connection.execute(q);
-    return res.json(results);
-  } catch (error) {
-    console.error("Error fetching books:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+
 
 export const addExpense = async (req, res) => {
   try {
@@ -90,7 +80,7 @@ export const addExpense = async (req, res) => {
     const { heading, date, amount } = req.body;
     const sql =
       "INSERT INTO transactions (transactionType, heading, date, amount) VALUES (?, ?, ?, ?)";
-    const values = ["expense", heading, new Date(), amount];
+    const values = ["expense", heading, new Date("2022-03-25"), amount];
     await connection.execute(sql, values);
     res
       .status(201)

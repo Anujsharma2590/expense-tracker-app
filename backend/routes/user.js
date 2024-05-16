@@ -10,7 +10,6 @@ import {checkToken } from '../auth/token-validation.js';
 import {
   createUser,
   userLogin,
-  getBooks,
   addExpense,
   addIncome,
   getTransactions,
@@ -20,7 +19,6 @@ router.post("/register", validateRegistration, createUser);
 
 router.post("/login", validateLogin, userLogin);
 
-router.get("/books", checkToken, getBooks);
 
 router.post("/expense", checkToken, addExpense);
 
