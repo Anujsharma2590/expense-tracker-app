@@ -1,6 +1,5 @@
 import { body } from "express-validator";
 
-// Common validation rules and custom error messages
 const commonRules = {
   email: body("email").isEmail().normalizeEmail().withMessage("Invalid email"),
   password: body("password")
@@ -9,7 +8,6 @@ const commonRules = {
     .withMessage("Password is required"),
 };
 
-// Validation middleware for user registration
 export const validateRegistration = [
   body("name")
     .trim()
@@ -30,5 +28,4 @@ export const validateRegistration = [
     }),
 ];
 
-// Validation middleware for login route
 export const validateLogin = [commonRules.email, commonRules.password];

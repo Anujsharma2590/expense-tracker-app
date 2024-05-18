@@ -1,12 +1,9 @@
 import express from "express";
-const router = express.Router();
 import {
   validateRegistration,
   validateLogin,
 } from "../middleware/validation/userValidation.js";
-
-import {checkToken } from '../auth/token-validation.js';
-
+import { checkToken } from "../auth/token-validation.js";
 import {
   createUser,
   userLogin,
@@ -14,13 +11,14 @@ import {
   addIncome,
   getTransactions,
   deleteTransaction,
-  editTransaction
+  editTransaction,
 } from "../controllers/user.js";
+
+const router = express.Router();
 
 router.post("/register", validateRegistration, createUser);
 
 router.post("/login", validateLogin, userLogin);
-
 
 router.post("/expense", checkToken, addExpense);
 

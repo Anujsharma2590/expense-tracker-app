@@ -3,15 +3,15 @@ import { connection } from "../config/database.js";
 import bcrypt from "bcrypt";
 import generateToken from "../utils/jwtUtils.js";
 const salt = 5;
+
 export const createUser = async (req, res) => {
   try {
-    // Check for validation errors
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ success: false, errors: errors.array() });
     }
 
-    // Check if the email already exists in the database
     const emailExistsQuery =
       "SELECT COUNT(*) AS count FROM login WHERE email = ?";
     const [emailExistsRows] = await connection.execute(emailExistsQuery, [
@@ -23,7 +23,7 @@ export const createUser = async (req, res) => {
         .status(409)
         .json({ success: false, message: "Email already exists" });
     }
-    // If email does not exist, proceed with registration
+
     const hashedPassword = await bcrypt.hash(
       req.body.password.toString(),
       salt
@@ -170,7 +170,7 @@ export const editTransaction = async (req, res) => {
     const { transactionType, heading, date, amount } = req.body;
 
     const sql = "UPDATE transactions SET transactionType = ?, heading = ?, date = ?, amount = ? WHERE id = ?";
-    const values = [transactionType, heading, new Date(), amount, transactionId];
+    const values = [transactionType, heading, new Date(date), amount, transactionId];
     const [result] = await connection.execute(sql, values);
 
     if (result.affectedRows === 0) {
