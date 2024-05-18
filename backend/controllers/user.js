@@ -76,12 +76,11 @@ export const userLogin = async (req, res) => {
 
 export const addExpense = async (req, res) => {
   try {
-  
     const { heading, date } = req.body;
     const amount = Number(req.body.amount);
     const sql =
       "INSERT INTO transactions (transactionType, heading, date, amount) VALUES (?, ?, ?, ?)";
-    const values = ["expense", heading, new Date("2022-03-25"), amount];
+    const values = ["expense", heading, date, amount];
     await connection.execute(sql, values);
     res
       .status(201)
@@ -98,7 +97,7 @@ export const addIncome = async (req, res) => {
     const amount = Number(req.body.amount);
     const sql =
       "INSERT INTO transactions (transactionType, heading, date, amount) VALUES (?, ?, ?, ?)";
-    const values = ["income", heading, new Date(), amount];
+    const values = ["income", heading, date, amount];
     await connection.execute(sql, values);
     res
       .status(201)
