@@ -164,3 +164,24 @@ export const deleteTransaction = async (req, res) => {
   }
 };
 
+export const editTransaction = async (req, res) => {
+  try {
+    const transactionId = req.params.id;
+    const { transactionType, heading, date, amount } = req.body;
+
+    const sql = "UPDATE transactions SET transactionType = ?, heading = ?, date = ?, amount = ? WHERE id = ?";
+    const values = [transactionType, heading, new Date(), amount, transactionId];
+    const [result] = await connection.execute(sql, values);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "Transaction not found" });
+    }
+
+    res.json({ success: true, message: "Transaction updated successfully" });
+  } catch (error) {
+    console.error("Error updating transaction:", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+
+
