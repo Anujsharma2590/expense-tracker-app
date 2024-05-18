@@ -124,6 +124,7 @@ export const getTransactions = async (req, res) => {
       }
 
       return {
+        id: row.id,
         transactionType: row.transactionType,
         heading: row.heading,
         date: row.date,
@@ -144,3 +145,22 @@ export const getTransactions = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const deleteTransaction = async (req, res) => {
+  try {
+    const transactionId = req.params.id;
+
+    const sql = "DELETE FROM transactions WHERE id = ?";
+    const [result] = await connection.execute(sql, [transactionId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: "Transaction not found" });
+    }
+
+    res.json({ success: true, message: "Transaction deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting transaction:", error);
+    res.status(500).json({ success: false, error: "Internal Server Error" });
+  }
+};
+

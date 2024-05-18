@@ -13,6 +13,7 @@ import {
   addExpense,
   addIncome,
   getTransactions,
+  deleteTransaction
 } from "../controllers/user.js";
 
 router.post("/register", validateRegistration, createUser);
@@ -25,5 +26,7 @@ router.post("/expense", checkToken, addExpense);
 router.post("/income", checkToken, addIncome);
 
 router.get("/transactions", checkToken, getTransactions);
+
+router.delete("/transaction/:id", checkToken, deleteTransaction);
 
 export default router;
