@@ -6,7 +6,6 @@ const salt = 5;
 
 export const createUser = async (req, res) => {
   try {
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ success: false, errors: errors.array() });
@@ -43,7 +42,6 @@ export const createUser = async (req, res) => {
 };
 
 export const userLogin = async (req, res) => {
-
   try {
     const sql = "SELECT * FROM login WHERE email = ?";
     const values = [req.body.email];
@@ -56,7 +54,7 @@ export const userLogin = async (req, res) => {
       rows[0].password
     );
     if (match) {
-      const token = generateToken(rows[0].id);
+      const token = generateToken(rows[0].id); // ensure the token contains the user ID
       return res.json({
         success: true,
         profileData: rows[0],
@@ -72,15 +70,13 @@ export const userLogin = async (req, res) => {
   }
 };
 
-
-
 export const addExpense = async (req, res) => {
   try {
-    const { heading, date } = req.body;
-    const amount = Number(req.body.amount);
+    const { heading, date, amount } = req.body;
+    const userId = req.query.userId;
     const sql =
-      "INSERT INTO transactions (transactionType, heading, date, amount) VALUES (?, ?, ?, ?)";
-    const values = ["expense", heading, date, amount];
+      "INSERT INTO transactions (transactionType, heading, date, amount, user_id) VALUES (?, ?, ?, ?, ?)";
+    const values = ["expense", heading, date, Number(amount), userId];
     await connection.execute(sql, values);
     res
       .status(201)
@@ -93,11 +89,13 @@ export const addExpense = async (req, res) => {
 
 export const addIncome = async (req, res) => {
   try {
-    const { heading, date } = req.body;
-    const amount = Number(req.body.amount);
+    const { heading, date, amount } = req.body;
+    const userId = req.query.userId;
+    console.log('Received parameters:', { heading, date, amount, userId });
+
     const sql =
-      "INSERT INTO transactions (transactionType, heading, date, amount) VALUES (?, ?, ?, ?)";
-    const values = ["income", heading, date, amount];
+      "INSERT INTO transactions (transactionType, heading, date, amount, user_id) VALUES (?, ?, ?, ?, ?)";
+    const values = ["income", heading, date, Number(amount), userId];
     await connection.execute(sql, values);
     res
       .status(201)
@@ -110,8 +108,10 @@ export const addIncome = async (req, res) => {
 
 export const getTransactions = async (req, res) => {
   try {
-    const sql = "SELECT * FROM transactions";
-    const [rows] = await connection.execute(sql);
+    const userId = req.query.userId;
+    console.log("Received parameters:", { userId });
+    const sql = "SELECT * FROM transactions WHERE user_id = ?";
+    const [rows] = await connection.execute(sql, [userId]);
     let totalBalance = 0;
     let expense = 0;
     let income = 0;
@@ -141,7 +141,7 @@ export const getTransactions = async (req, res) => {
       transactions,
     });
   } catch (error) {
-    console.error("Error fetching transactions:", error);
+    console.error("Error fetching transactions backend:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -149,12 +149,15 @@ export const getTransactions = async (req, res) => {
 export const deleteTransaction = async (req, res) => {
   try {
     const transactionId = req.params.id;
+    const userId = req.query.userId;
 
-    const sql = "DELETE FROM transactions WHERE id = ?";
-    const [result] = await connection.execute(sql, [transactionId]);
+    const sql = "DELETE FROM transactions WHERE id = ? AND user_id = ?";
+    const [result] = await connection.execute(sql, [transactionId, userId]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: "Transaction not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Transaction not found" });
     }
 
     res.json({ success: true, message: "Transaction deleted successfully" });
@@ -168,13 +171,25 @@ export const editTransaction = async (req, res) => {
   try {
     const transactionId = req.params.id;
     const { transactionType, heading, date, amount } = req.body;
+    const userId = req.query.userId;
+    console.log("Received parameters:", { transactionType, heading, date, amount, transactionId, userId });
 
-    const sql = "UPDATE transactions SET transactionType = ?, heading = ?, date = ?, amount = ? WHERE id = ?";
-    const values = [transactionType, heading, new Date(date), amount, transactionId];
+    const sql =
+      "UPDATE transactions SET transactionType = ?, heading = ?, date = ?, amount = ? WHERE id = ? AND user_id = ?";
+    const values = [
+      transactionType,
+      heading,
+      new Date(date),
+      Number(amount),
+      transactionId,
+      userId,
+    ];
     const [result] = await connection.execute(sql, values);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: "Transaction not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Transaction not found" });
     }
 
     res.json({ success: true, message: "Transaction updated successfully" });
@@ -183,5 +198,3 @@ export const editTransaction = async (req, res) => {
     res.status(500).json({ success: false, error: "Internal Server Error" });
   }
 };
-
-
