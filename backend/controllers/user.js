@@ -91,7 +91,6 @@ export const addIncome = async (req, res) => {
   try {
     const { heading, date, amount } = req.body;
     const userId = req.query.userId;
-    console.log('Received parameters:', { heading, date, amount, userId });
 
     const sql =
       "INSERT INTO transactions (transactionType, heading, date, amount, user_id) VALUES (?, ?, ?, ?, ?)";
@@ -109,7 +108,6 @@ export const addIncome = async (req, res) => {
 export const getTransactions = async (req, res) => {
   try {
     const userId = req.query.userId;
-    console.log("Received parameters:", { userId });
     const sql = "SELECT * FROM transactions WHERE user_id = ?";
     const [rows] = await connection.execute(sql, [userId]);
     let totalBalance = 0;
@@ -172,7 +170,6 @@ export const editTransaction = async (req, res) => {
     const transactionId = req.params.id;
     const { transactionType, heading, date, amount } = req.body;
     const userId = req.query.userId;
-    console.log("Received parameters:", { transactionType, heading, date, amount, transactionId, userId });
 
     const sql =
       "UPDATE transactions SET transactionType = ?, heading = ?, date = ?, amount = ? WHERE id = ? AND user_id = ?";
